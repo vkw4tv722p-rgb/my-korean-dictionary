@@ -2720,6 +2720,107 @@ const LISTS = {
     { kr: "일정.",         en: "A schedule; an agenda.",                               cat: "Vocabulary",  hanja: ["日","程"],         hanjaEn: "day + journey/schedule" },
     { kr: "~밖에.",        en: "(noun) 밖에 + negative verb: only; nothing but.",      cat: "Grammar",     hanja: ["밖",null],         hanjaEn: "outside" },
   ],
+
+  // ── AOL1: Advanced Operational Language 1 ─────────────────────────────────
+  // M2 L3 — Military Personnel & Equipment
+  // M2 L4 — Airfield & Base Vocab
+  // M4 L1 — Combat Operations
+  // M4 L2 — DMZ & Patrol
+  // M4 L3 — POW / Intelligence / Reporting
+  // M6 L1 — Espionage / Border
+  // M6 L2 — Exercises & Operations
+  "AOL1": [
+    // ── M2 L3 ──────────────────────────────────────────────────────────────
+    { kr: "군관.",       en: "Officer (NK term; SK: 장교).",                   cat: "Military" },
+    { kr: "권총.",       en: "Pistol; handgun.",                               cat: "Military" },
+    { kr: "병사.",       en: "Soldier; lower-enlisted personnel.",             cat: "Military" },
+    { kr: "보초.",       en: "Sentry; guard.",                                 cat: "Military" },
+    { kr: "소총.",       en: "Rifle.",                                         cat: "Military" },
+    { kr: "식량.",       en: "Rations; food supplies.",                        cat: "Military" },
+    { kr: "전사.",       en: "Private (NK rank above 신병).",                  cat: "Military" },
+    { kr: "초소.",       en: "Sentry post; guard post.",                       cat: "Military" },
+    { kr: "초소장.",     en: "Guard post commander.",                          cat: "Military" },
+    { kr: "탄약.",       en: "Ammunition.",                                    cat: "Military" },
+    { kr: "동무.",       en: "Comrade (NK standard term).",                    cat: "Military" },
+    { kr: "동지.",       en: "Comrade (honorific).",                           cat: "Military" },
+    // ── M2 L4 ──────────────────────────────────────────────────────────────
+    { kr: "격납고.",     en: "Aircraft hangar.",                               cat: "Military" },
+    { kr: "관제탑.",     en: "Control tower.",                                 cat: "Military" },
+    { kr: "급유.",       en: "Fueling; providing fuel to aircraft.",           cat: "Military" },
+    { kr: "기지.",       en: "Military base.",                                 cat: "Military" },
+    { kr: "무선기.",     en: "Radio (NK term; SK: 무전기).",                   cat: "Military" },
+    { kr: "비행장.",     en: "Airfield.",                                      cat: "Military" },
+    { kr: "사령관.",     en: "Commander.",                                     cat: "Military" },
+    { kr: "착륙.",       en: "Landing.",                                       cat: "Military" },
+    { kr: "접근.",       en: "Approaching; drawing near.",                     cat: "Military" },
+    { kr: "정비원.",     en: "Mechanic; maintenance personnel.",               cat: "Military" },
+    { kr: "조종사.",     en: "Pilot.",                                         cat: "Military" },
+    { kr: "활주로.",     en: "Runway.",                                        cat: "Military" },
+    // ── M4 L1 ──────────────────────────────────────────────────────────────
+    { kr: "격퇴.",       en: "Repelling; driving back the enemy.",             cat: "Military" },
+    { kr: "공격.",       en: "Attack; offensive.",                             cat: "Military" },
+    { kr: "명령.",       en: "Orders; a command.",                             cat: "Military" },
+    { kr: "방어.",       en: "Defense; defending.",                            cat: "Military" },
+    { kr: "아군.",       en: "Our forces; friendly forces.",                   cat: "Military" },
+    { kr: "적군.",       en: "Enemy forces.",                                  cat: "Military" },
+    { kr: "전진.",       en: "Advancing; moving forward.",                     cat: "Military" },
+    { kr: "점령.",       en: "Occupation; capturing (a position).",            cat: "Military" },
+    { kr: "진지.",       en: "Battle position; encampment.",                   cat: "Military" },
+    { kr: "야포.",       en: "Field artillery.",                               cat: "Military" },
+    { kr: "후퇴.",       en: "Retreat; retreating.",                           cat: "Military" },
+    { kr: "엄호 사격.",  en: "Covering fire; protective fire.",                cat: "Military" },
+    // ── M4 L2 ──────────────────────────────────────────────────────────────
+    { kr: "검문소.",     en: "Checkpoint.",                                    cat: "Military" },
+    { kr: "경계.",       en: "Guard; watch; keeping careful watch.",           cat: "Military" },
+    { kr: "귀대.",       en: "Return to base.",                                cat: "Military" },
+    { kr: "비무장 지대.", en: "Demilitarized Zone (DMZ).",                     cat: "Military" },
+    { kr: "순찰.",       en: "Patrol; patrolling.",                            cat: "Military" },
+    { kr: "이상.",       en: "Abnormal; strange; unusual.",                    cat: "Military" },
+    { kr: "임무.",       en: "Mission; assigned duty.",                        cat: "Military" },
+    { kr: "찝차.",       en: "Jeep.",                                          cat: "Military" },
+    { kr: "출발.",       en: "Departure; setting out.",                        cat: "Military" },
+    { kr: "통과.",       en: "Passing through.",                               cat: "Military" },
+    { kr: "휴대.",       en: "Carrying along; having on one's person.",        cat: "Military" },
+    { kr: "무사히.",     en: "Safely; without incident.",                      cat: "Military" },
+    // ── M4 L3 ──────────────────────────────────────────────────────────────
+    { kr: "결과.",       en: "Result; outcome.",                               cat: "Military" },
+    { kr: "기록.",       en: "Recording; writing down.",                       cat: "Military" },
+    { kr: "내용.",       en: "Contents; subject matter.",                      cat: "Military" },
+    { kr: "보고.",       en: "Report; reporting.",                             cat: "Military" },
+    { kr: "서류.",       en: "Document; paperwork.",                           cat: "Military" },
+    { kr: "소속.",       en: "Belonging to; assigned to (a unit).",            cat: "Military" },
+    { kr: "소지품.",     en: "Personal belongings; personal effects.",         cat: "Military" },
+    { kr: "심문.",       en: "Interrogation; questioning.",                    cat: "Military" },
+    { kr: "정보.",       en: "Intelligence; information.",                     cat: "Military" },
+    { kr: "제출.",       en: "Submitting; presenting (a document).",           cat: "Military" },
+    { kr: "조사.",       en: "Investigation; examining.",                      cat: "Military" },
+    { kr: "포로.",       en: "Prisoner (of war).",                             cat: "Military" },
+    // ── M6 L1 ──────────────────────────────────────────────────────────────
+    { kr: "간첩.",       en: "Spy; espionage agent.",                          cat: "Military" },
+    { kr: "검토.",       en: "Examining; reviewing (documents).",              cat: "Military" },
+    { kr: "경계선.",     en: "Boundary line; border line.",                    cat: "Military" },
+    { kr: "국경선.",     en: "National border.",                               cat: "Military" },
+    { kr: "목적.",       en: "Purpose; aim; objective.",                       cat: "Military" },
+    { kr: "무기.",       en: "Weapon; weapons.",                               cat: "Military" },
+    { kr: "문서.",       en: "Official document; captured document.",          cat: "Military" },
+    { kr: "신분증.",     en: "Identity card; identification papers.",          cat: "Military" },
+    { kr: "수상하다.",   en: "To be suspicious; to seem strange.",             cat: "Military" },
+    { kr: "허가.",       en: "Permission; authorization.",                     cat: "Military" },
+    { kr: "몰래.",       en: "Secretly; covertly.",                            cat: "Military" },
+    // ── M6 L2 ──────────────────────────────────────────────────────────────
+    { kr: "공수.",       en: "Airlift; transport by air.",                     cat: "Military" },
+    { kr: "규모.",       en: "Scope; scale.",                                  cat: "Military" },
+    { kr: "기동 훈련.",  en: "Military exercise; maneuvers.",                  cat: "Military" },
+    { kr: "동원.",       en: "Mobilization; mobilizing troops.",               cat: "Military" },
+    { kr: "물자.",       en: "Supplies; materials; goods.",                    cat: "Military" },
+    { kr: "배치.",       en: "Deployment; positioning.",                       cat: "Military" },
+    { kr: "병력.",       en: "Troop strength; military manpower.",             cat: "Military" },
+    { kr: "실시.",       en: "Carrying out; executing; conducting.",           cat: "Military" },
+    { kr: "야전 훈련.",  en: "Field training.",                                cat: "Military" },
+    { kr: "작전.",       en: "Military operation.",                            cat: "Military" },
+    { kr: "지역.",       en: "Area; zone; sector.",                            cat: "Military" },
+    { kr: "참가.",       en: "Participation; participating.",                  cat: "Military" },
+  ],
 };
 
 // Tag every phrase with its source list name (__list) so any flattened
