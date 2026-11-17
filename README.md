@@ -68,7 +68,18 @@
   }
 
   /* ── HEADER ── */
-  header { padding: 28px 0 16px; display: flex; align-items: baseline; gap: 12px; }
+  header { padding: 28px 0 16px; display: flex; align-items: center; gap: 12px; }
+
+  .sync-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0; margin-left: 2px;
+    transition: background 0.4s;
+  }
+  .sync-dot[data-status="offline"]  { background: var(--muted-2); }
+  .sync-dot[data-status="saving"]   { background: var(--gold); animation: pulse-dot 1s infinite; }
+  .sync-dot[data-status="synced"]   { background: var(--correct); }
+  .sync-dot[data-status="error"]    { background: var(--red-stamp); }
+  @keyframes pulse-dot { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
   .title-kr { font-family: 'Nanum Myeongjo', serif; font-size: 26px; font-weight: 700; color: var(--ink); letter-spacing: 2px; }
   .title-en { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
   .score-badge { font-size: 13px; font-weight: 700; color: var(--gold); letter-spacing: 1px; }
@@ -623,6 +634,7 @@
     <span class="score-badge" id="scoreDisplay" style="display:none"></span>
     <button class="theme-toggle" id="settingsToggle" onclick="openSettingsPanel()" aria-label="Review settings">⚙️</button>
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode">🔆</button>
+    <span id="syncDot" class="sync-dot" data-status="offline" title="Offline"></span>
   </header>
 
   <div id="settingsOverlay" class="settings-overlay" style="display:none" onclick="closeSettingsPanel(event)">
@@ -3155,11 +3167,14 @@ function saveQuizState() {
       savedAt: Date.now(),
     };
     localStorage.setItem(QUIZ_SAVE_KEY, JSON.stringify(save));
+    // Also sync to Firestore (fire-and-forget)
+    if (window.fbSaveQuizState) window.fbSaveQuizState(save);
   } catch(e) { /* ignore quota errors */ }
 }
 
 function clearQuizSave() {
   try { localStorage.removeItem(QUIZ_SAVE_KEY); } catch(e) {}
+  if (window.fbClearQuizState) window.fbClearQuizState();
 }
 
 function loadQuizSave() {
@@ -3176,6 +3191,28 @@ function loadQuizSave() {
     return save;
   } catch(e) { return null; }
 }
+
+// On Firebase ready — if localStorage has nothing, try to pull from Firestore
+// (handles the case where user opens the app on a new device)
+window.addEventListener('firebase-ready', async () => {
+  const local = loadQuizSave();
+  if (local) return; // already have local state — nothing to do
+  if (!window.fbLoadQuizState) return;
+  const remote = await window.fbLoadQuizState();
+  if (!remote) return;
+  // Validate remote save
+  if (remote.listsVersion !== LISTS_VERSION) { window.fbClearQuizState(); return; }
+  if (!remote.selectedLists || !remote.quizQueue || remote.quizIndex == null) return;
+  const validLists = remote.selectedLists.filter(l => LISTS[l]);
+  if (validLists.length === 0) return;
+  // Restore from remote and persist locally
+  localStorage.setItem(QUIZ_SAVE_KEY, JSON.stringify(remote));
+  // If we're currently on the home/study screen (not mid-quiz), offer to restore
+  if (mode !== 'quiz') {
+    const banner = document.getElementById('resumeBanner');
+    if (banner) banner.style.display = 'block';
+  }
+});
 
 function restoreQuizState(save) {
   // Rebuild selectedLists
@@ -5384,6 +5421,91 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+</script>
+
+<!-- ── FIREBASE ──────────────────────────────────────────────────────────── -->
+<script type="module">
+  import { initializeApp }                        from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyD0hdjJlDX4M8ZAKpCDW_EB9tKIYAiaUjY",
+    authDomain:        "my-korean-dictionary.firebaseapp.com",
+    projectId:         "my-korean-dictionary",
+    storageBucket:     "my-korean-dictionary.firebasestorage.app",
+    messagingSenderId: "1029679236523",
+    appId:             "1:1029679236523:web:00790ed863b9b203ff3eee",
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  // Expose to the classic script
+  window.__db = db;
+  window.__firestore = { doc, setDoc, getDoc, deleteDoc };
+
+  // Sign in anonymously — gives each browser a stable UID across reloads
+  signInAnonymously(auth).catch(e => console.warn('Firebase anon auth failed:', e));
+
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      window.__uid = user.uid;
+      window.__fbReady = true;
+      // Notify the main script that Firebase is ready
+      window.dispatchEvent(new CustomEvent('firebase-ready', { detail: { uid: user.uid } }));
+      setSyncStatus('synced');
+    }
+  });
+
+  // ── Sync helpers exposed to main script ──────────────────────────────────
+
+  window.fbSaveQuizState = async function(saveObj) {
+    if (!window.__uid || !window.__db) return;
+    setSyncStatus('saving');
+    try {
+      const { doc, setDoc } = window.__firestore;
+      const ref = doc(window.__db, 'users', window.__uid, 'state', 'quizSave');
+      await setDoc(ref, { ...saveObj, _savedAt: Date.now() });
+      setSyncStatus('synced');
+    } catch(e) {
+      console.warn('Firestore save failed:', e);
+      setSyncStatus('error');
+    }
+  };
+
+  window.fbLoadQuizState = async function() {
+    if (!window.__uid || !window.__db) return null;
+    try {
+      const { doc, getDoc } = window.__firestore;
+      const ref  = doc(window.__db, 'users', window.__uid, 'state', 'quizSave');
+      const snap = await getDoc(ref);
+      return snap.exists() ? snap.data() : null;
+    } catch(e) {
+      console.warn('Firestore load failed:', e);
+      return null;
+    }
+  };
+
+  window.fbClearQuizState = async function() {
+    if (!window.__uid || !window.__db) return;
+    try {
+      const { doc, deleteDoc } = window.__firestore;
+      const ref = doc(window.__db, 'users', window.__uid, 'state', 'quizSave');
+      await deleteDoc(ref);
+    } catch(e) {
+      console.warn('Firestore clear failed:', e);
+    }
+  };
+
+  // ── Sync status indicator ─────────────────────────────────────────────────
+  function setSyncStatus(status) {
+    const dot = document.getElementById('syncDot');
+    if (!dot) return;
+    dot.dataset.status = status;
+    dot.title = { saving: 'Saving…', synced: 'Synced', error: 'Sync error', offline: 'Offline' }[status] || '';
+  }
 </script>
 </body>
 </html>
