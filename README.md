@@ -80,6 +80,19 @@
   .sync-dot[data-status="synced"]   { background: var(--correct); }
   .sync-dot[data-status="error"]    { background: var(--red-stamp); }
   @keyframes pulse-dot { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+  .google-signin-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 20px;
+    border: 1px solid var(--ruled);
+    background: var(--card-bg); color: var(--ink);
+    font-size: 11px; font-family: inherit;
+    cursor: pointer; white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s;
+    margin-left: auto;
+  }
+  .google-signin-btn:hover { background: var(--ruled); }
+  .google-signin-btn img { flex-shrink: 0; }
   .title-kr { font-family: 'Nanum Myeongjo', serif; font-size: 26px; font-weight: 700; color: var(--ink); letter-spacing: 2px; }
   .title-en { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
   .score-badge { font-size: 13px; font-weight: 700; color: var(--gold); letter-spacing: 1px; }
@@ -635,6 +648,7 @@
     <button class="theme-toggle" id="settingsToggle" onclick="openSettingsPanel()" aria-label="Review settings">⚙️</button>
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode">🔆</button>
     <span id="syncDot" class="sync-dot" data-status="offline" title="Offline"></span>
+    <button id="googleSignInBtn" class="google-signin-btn" onclick="window.fbSignInWithGoogle && window.fbSignInWithGoogle()" style="display:none" aria-label="Sign in with Google"></button>
   </header>
 
   <div id="settingsOverlay" class="settings-overlay" style="display:none" onclick="closeSettingsPanel(event)">
@@ -5425,9 +5439,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- ── FIREBASE ──────────────────────────────────────────────────────────── -->
 <script type="module">
-  import { initializeApp }                        from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+  import { initializeApp }                                                from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import { getAuth, signInAnonymously, signInWithPopup, linkWithPopup,
+           GoogleAuthProvider, onAuthStateChanged }                       from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, deleteDoc }                from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey:            "AIzaSyD0hdjJlDX4M8ZAKpCDW_EB9tKIYAiaUjY",
@@ -5438,28 +5453,74 @@ document.addEventListener('DOMContentLoaded', () => {
     appId:             "1:1029679236523:web:00790ed863b9b203ff3eee",
   };
 
-  const app  = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db   = getFirestore(app);
+  const app      = initializeApp(firebaseConfig);
+  const auth     = getAuth(app);
+  const db       = getFirestore(app);
+  const provider = new GoogleAuthProvider();
 
   // Expose to the classic script
-  window.__db = db;
+  window.__db        = db;
   window.__firestore = { doc, setDoc, getDoc, deleteDoc };
 
-  // Sign in anonymously — gives each browser a stable UID across reloads
+  // Sign in anonymously on first load
   signInAnonymously(auth).catch(e => console.warn('Firebase anon auth failed:', e));
 
   onAuthStateChanged(auth, user => {
     if (user) {
-      window.__uid = user.uid;
+      window.__uid     = user.uid;
       window.__fbReady = true;
-      // Notify the main script that Firebase is ready
-      window.dispatchEvent(new CustomEvent('firebase-ready', { detail: { uid: user.uid } }));
+      window.__isAnon  = user.isAnonymous;
+      window.dispatchEvent(new CustomEvent('firebase-ready', { detail: { uid: user.uid, isAnon: user.isAnonymous } }));
       setSyncStatus('synced');
+      updateAuthUI(user);
     }
   });
 
-  // ── Sync helpers exposed to main script ──────────────────────────────────
+  // ── Google sign-in ───────────────────────────────────────────────────────
+  // If anonymous → upgrade (link) so their data carries over
+  // If already signed in with Google → sign in normally
+  window.fbSignInWithGoogle = async function() {
+    if (!auth.currentUser) return;
+    setSyncStatus('saving');
+    try {
+      if (auth.currentUser.isAnonymous) {
+        // Upgrade anonymous account → Google, preserving UID-linked Firestore data
+        await linkWithPopup(auth.currentUser, provider);
+      } else {
+        await signInWithPopup(auth, provider);
+      }
+    } catch(e) {
+      // credential-already-in-use: they already have a Google account — sign in normally
+      if (e.code === 'auth/credential-already-in-use') {
+        try { await signInWithPopup(auth, provider); } catch(e2) { console.warn('Google sign-in failed:', e2); }
+      } else if (e.code !== 'auth/popup-closed-by-user') {
+        console.warn('Google sign-in failed:', e);
+      }
+      setSyncStatus('synced');
+    }
+  };
+
+  window.fbSignOut = async function() {
+    await auth.signOut();
+    await signInAnonymously(auth);
+  };
+
+  function updateAuthUI(user) {
+    const btn = document.getElementById('googleSignInBtn');
+    if (!btn) return;
+    if (user.isAnonymous) {
+      btn.style.display = 'flex';
+      btn.innerHTML = `<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:16px;height:16px;"> Sign in to sync`;
+    } else {
+      btn.style.display = 'flex';
+      btn.innerHTML = `<img src="${user.photoURL || ''}" style="width:16px;height:16px;border-radius:50%;"> ${user.displayName || user.email}`;
+      btn.onclick = () => {
+        if (confirm('Sign out? You\'ll revert to anonymous mode.')) window.fbSignOut();
+      };
+    }
+  }
+
+  // ── Sync helpers ─────────────────────────────────────────────────────────
 
   window.fbSaveQuizState = async function(saveObj) {
     if (!window.__uid || !window.__db) return;
