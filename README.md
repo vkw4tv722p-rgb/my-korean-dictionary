@@ -5440,7 +5440,8 @@ document.addEventListener('DOMContentLoaded', () => {
 <!-- ── FIREBASE ──────────────────────────────────────────────────────────── -->
 <script type="module">
   import { initializeApp }                                                from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-  import { getAuth, signInAnonymously, signInWithPopup, linkWithPopup,
+  import { getAuth, signInAnonymously, signInWithPopup, signInWithRedirect,
+           linkWithPopup, linkWithRedirect, getRedirectResult,
            GoogleAuthProvider, onAuthStateChanged }                       from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc, deleteDoc }                from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
@@ -5476,6 +5477,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Detect iOS standalone (web app) or iOS Safari — use redirect instead of popup
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true;
+  const useRedirect  = isIOS || isStandalone;
+
+  // On page load, check if we're returning from a redirect sign-in
+  getRedirectResult(auth).then(result => {
+    if (result?.user) updateAuthUI(result.user);
+  }).catch(e => {
+    if (e.code === 'auth/credential-already-in-use') {
+      signInWithRedirect(auth, provider);
+    } else if (e.code !== 'auth/popup-closed-by-user') {
+      console.warn('Redirect result error:', e);
+    }
+  });
+
   // ── Google sign-in ───────────────────────────────────────────────────────
   // If anonymous → upgrade (link) so their data carries over
   // If already signed in with Google → sign in normally
@@ -5485,14 +5502,25 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       if (auth.currentUser.isAnonymous) {
         // Upgrade anonymous account → Google, preserving UID-linked Firestore data
-        await linkWithPopup(auth.currentUser, provider);
+        if (useRedirect) {
+          await linkWithRedirect(auth.currentUser, provider);
+        } else {
+          await linkWithPopup(auth.currentUser, provider);
+        }
       } else {
-        await signInWithPopup(auth, provider);
+        if (useRedirect) {
+          await signInWithRedirect(auth, provider);
+        } else {
+          await signInWithPopup(auth, provider);
+        }
       }
     } catch(e) {
       // credential-already-in-use: they already have a Google account — sign in normally
       if (e.code === 'auth/credential-already-in-use') {
-        try { await signInWithPopup(auth, provider); } catch(e2) { console.warn('Google sign-in failed:', e2); }
+        try {
+          if (useRedirect) { await signInWithRedirect(auth, provider); }
+          else { await signInWithPopup(auth, provider); }
+        } catch(e2) { console.warn('Google sign-in failed:', e2); }
       } else if (e.code !== 'auth/popup-closed-by-user') {
         console.warn('Google sign-in failed:', e);
       }
