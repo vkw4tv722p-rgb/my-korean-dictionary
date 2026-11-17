@@ -3209,23 +3209,97 @@ function loadQuizSave() {
 // On Firebase ready — if localStorage has nothing, try to pull from Firestore
 // (handles the case where user opens the app on a new device)
 window.addEventListener('firebase-ready', async () => {
+  // ── 1. Quiz save state ───────────────────────────────────────────────────
   const local = loadQuizSave();
-  if (local) return; // already have local state — nothing to do
-  if (!window.fbLoadQuizState) return;
-  const remote = await window.fbLoadQuizState();
-  if (!remote) return;
-  // Validate remote save
-  if (remote.listsVersion !== LISTS_VERSION) { window.fbClearQuizState(); return; }
-  if (!remote.selectedLists || !remote.quizQueue || remote.quizIndex == null) return;
-  const validLists = remote.selectedLists.filter(l => LISTS[l]);
-  if (validLists.length === 0) return;
-  // Restore from remote and persist locally
-  localStorage.setItem(QUIZ_SAVE_KEY, JSON.stringify(remote));
-  // If we're currently on the home/study screen (not mid-quiz), offer to restore
-  if (mode !== 'quiz') {
-    const banner = document.getElementById('resumeBanner');
-    if (banner) banner.style.display = 'block';
+  if (!local && window.fbLoadQuizState) {
+    const remote = await window.fbLoadQuizState();
+    if (remote && remote.listsVersion === LISTS_VERSION &&
+        remote.selectedLists && remote.quizQueue && remote.quizIndex != null) {
+      const validLists = remote.selectedLists.filter(l => LISTS[l]);
+      if (validLists.length > 0) {
+        localStorage.setItem(QUIZ_SAVE_KEY, JSON.stringify(remote));
+        if (mode !== 'quiz') {
+          const banner = document.getElementById('resumeBanner');
+          if (banner) banner.style.display = 'block';
+        }
+      }
+    }
   }
+
+  // ── 2. SRS / Review state ────────────────────────────────────────────────
+  if (window.fbLoadSrsData) {
+    const remoteSrs = await window.fbLoadSrsData();
+    if (remoteSrs) {
+      // Merge word stats: for each word keep the record with the newer lastSeen
+      if (remoteSrs.words && typeof remoteSrs.words === 'object') {
+        const db = await openSrsDb();
+        if (db) {
+          await new Promise((resolve) => {
+            const tx = db.transaction(SRS_STORE, 'readwrite');
+            const store = tx.objectStore(SRS_STORE);
+            const entries = Object.entries(remoteSrs.words);
+            let pending = entries.length;
+            if (pending === 0) { resolve(); return; }
+            entries.forEach(([kr, remoteRec]) => {
+              const getReq = store.get(kr);
+              getReq.onsuccess = () => {
+                const localRec = getReq.result;
+                // Use remote if: no local record, or remote was seen more recently
+                const remoteNewer = !localRec ||
+                  (remoteRec.lastSeen && (!localRec.lastSeen || remoteRec.lastSeen > localRec.lastSeen));
+                if (remoteNewer) store.put(remoteRec, kr);
+                if (--pending === 0) resolve();
+              };
+              getReq.onerror = () => { if (--pending === 0) resolve(); };
+            });
+            tx.onerror = () => resolve();
+          });
+        }
+      }
+      // Merge list eligibility: remote wins (cross-device is authoritative)
+      if (remoteSrs.lists && typeof remoteSrs.lists === 'object') {
+        const db = await openSrsDb();
+        if (db) {
+          await new Promise((resolve) => {
+            const tx = db.transaction(LIST_ELIGIBILITY_STORE, 'readwrite');
+            const store = tx.objectStore(LIST_ELIGIBILITY_STORE);
+            const entries = Object.entries(remoteSrs.lists);
+            let pending = entries.length;
+            if (pending === 0) { resolve(); return; }
+            entries.forEach(([name, rec]) => {
+              const putReq = store.put(rec, name);
+              putReq.onsuccess = () => { if (--pending === 0) resolve(); };
+              putReq.onerror   = () => { if (--pending === 0) resolve(); };
+            });
+            tx.onerror = () => resolve();
+          });
+        }
+      }
+      // Refresh the review badge so the count reflects merged state
+      refreshReviewBadge();
+    }
+  }
+
+  // ── 3. Settings ──────────────────────────────────────────────────────────
+  // Apply remote settings only on a fresh device (no local settings saved yet)
+  const hasLocalHanja    = localStorage.getItem('showHanja')   !== null;
+  const hasLocalHanjaEn  = localStorage.getItem('showHanjaEn') !== null;
+  if ((!hasLocalHanja || !hasLocalHanjaEn) && window.fbLoadSettings) {
+    const remoteSettings = await window.fbLoadSettings();
+    if (remoteSettings) {
+      if (!hasLocalHanja && remoteSettings.showHanja != null) {
+        showHanja = remoteSettings.showHanja === true;
+        localStorage.setItem('showHanja', showHanja);
+      }
+      if (!hasLocalHanjaEn && remoteSettings.showHanjaEn != null) {
+        showHanjaEn = remoteSettings.showHanjaEn === true;
+        localStorage.setItem('showHanjaEn', showHanjaEn);
+      }
+      refreshCurrentMode();
+    }
+  }
+  // Push local settings to Firestore so they're always current
+  if (window.fbSaveSettings) window.fbSaveSettings({ showHanja, showHanjaEn });
 });
 
 function restoreQuizState(save) {
@@ -3987,6 +4061,17 @@ const SRS_MAX_BOX = SRS_BOX_GAPS_DAYS.length - 1;
 
 let srsDbPromise = null;
 
+// ── SRS → FIRESTORE DEBOUNCED SYNC ───────────────────────────────────────
+let _srsSyncTimer = null;
+function scheduleSrsSync() {
+  if (_srsSyncTimer) clearTimeout(_srsSyncTimer);
+  _srsSyncTimer = setTimeout(async () => {
+    if (!window.fbSaveSrsData) return;
+    const [words, lists] = await Promise.all([getAllSrsRecords(), getAllListEligibilityRecords()]);
+    window.fbSaveSrsData(words, lists);
+  }, 3000); // 3-second debounce — coalesces rapid-fire quiz answers into one write
+}
+
 function openSrsDb() {
   if (srsDbPromise) return srsDbPromise;
   srsDbPromise = new Promise((resolve) => {
@@ -4071,7 +4156,7 @@ async function recordSrsAttempt(kr, wasCorrect) {
   return new Promise((resolve) => {
     const tx = db.transaction(SRS_STORE, 'readwrite');
     tx.objectStore(SRS_STORE).put(record, kr);
-    tx.oncomplete = () => resolve(record);
+    tx.oncomplete = () => { scheduleSrsSync(); resolve(record); };
     tx.onerror    = () => resolve(record);
   });
 }
@@ -4100,7 +4185,7 @@ async function markAsTypo(kr) {
   await new Promise((resolve) => {
     const tx = db.transaction(SRS_STORE, 'readwrite');
     tx.objectStore(SRS_STORE).put(record, kr);
-    tx.oncomplete = () => resolve();
+    tx.oncomplete = () => { scheduleSrsSync(); resolve(); };
     tx.onerror    = () => resolve();
   });
 
@@ -4172,7 +4257,7 @@ async function markListAutoStarted(listName) {
   return new Promise((resolve) => {
     const tx = db.transaction(LIST_ELIGIBILITY_STORE, 'readwrite');
     tx.objectStore(LIST_ELIGIBILITY_STORE).put(updated, listName);
-    tx.oncomplete = () => resolve();
+    tx.oncomplete = () => { scheduleSrsSync(); resolve(); };
     tx.onerror    = () => resolve();
   });
 }
@@ -4188,7 +4273,7 @@ async function setListManualOverride(listName, value) {
   return new Promise((resolve) => {
     const tx = db.transaction(LIST_ELIGIBILITY_STORE, 'readwrite');
     tx.objectStore(LIST_ELIGIBILITY_STORE).put(updated, listName);
-    tx.oncomplete = () => resolve();
+    tx.oncomplete = () => { scheduleSrsSync(); resolve(); };
     tx.onerror    = () => resolve();
   });
 }
@@ -4851,6 +4936,10 @@ function hanjaHTML(phrase) {
   return `<span class="hanja-en-display"> · ${phrase.hanjaEn}</span>`;
 }
 
+function syncSettingsToFirestore() {
+  if (window.fbSaveSettings) window.fbSaveSettings({ showHanja, showHanjaEn });
+}
+
 function toggleHanjaSetting() {
   showHanja = !showHanja;
   localStorage.setItem('showHanja', showHanja);
@@ -4859,6 +4948,7 @@ function toggleHanjaSetting() {
     btn.textContent = showHanja ? 'On' : 'Off';
     btn.className   = 'settings-toggle-btn' + (showHanja ? ' active-enabled' : '');
   }
+  syncSettingsToFirestore();
   refreshCurrentMode();
 }
 
@@ -4870,6 +4960,7 @@ function toggleHanjaEnSetting() {
     btn.textContent = showHanjaEn ? 'On' : 'Off';
     btn.className   = 'settings-toggle-btn' + (showHanjaEn ? ' active-enabled' : '');
   }
+  syncSettingsToFirestore();
   refreshCurrentMode();
 }
 
@@ -5541,7 +5632,10 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.innerHTML = `<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:16px;height:16px;"> Sign in to sync`;
     } else {
       btn.style.display = 'flex';
-      btn.innerHTML = `<img src="${user.photoURL || ''}" style="width:16px;height:16px;border-radius:50%;"> ${user.displayName || user.email}`;
+      const avatar = user.photoURL
+        ? `<img src="${user.photoURL}" style="width:16px;height:16px;border-radius:50%;">`
+        : `<span style="width:16px;height:16px;border-radius:50%;background:var(--blue-ink);color:#fff;font-size:9px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">${(user.displayName||user.email||'?')[0].toUpperCase()}</span>`;
+      btn.innerHTML = `${avatar} ${user.displayName || user.email}`;
       btn.onclick = () => {
         if (confirm('Sign out? You\'ll revert to anonymous mode.')) window.fbSignOut();
       };
@@ -5549,6 +5643,65 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Sync helpers ─────────────────────────────────────────────────────────
+
+  // SRS word stats: { words: { [kr]: { box, timesCorrect, timesWrong, lastSeen, nextDue } } }
+  window.fbSaveSrsData = async function(wordStatsMap, listEligibilityMap) {
+    if (!window.__uid || !window.__db) return;
+    setSyncStatus('saving');
+    try {
+      const { doc, setDoc } = window.__firestore;
+      // Convert Maps to plain objects; use base64-encode kr keys to avoid Firestore key restrictions
+      // (Korean chars are actually valid, but dots/slashes are not — none in our keys, safe to use directly)
+      const words = {};
+      wordStatsMap.forEach((rec, kr) => { words[kr] = rec; });
+      const lists = {};
+      listEligibilityMap.forEach((rec, name) => { lists[name] = rec; });
+
+      const ref = doc(window.__db, 'users', window.__uid, 'state', 'srsData');
+      await setDoc(ref, { words, lists, _savedAt: Date.now() });
+      setSyncStatus('synced');
+    } catch(e) {
+      console.warn('Firestore SRS save failed:', e);
+      setSyncStatus('error');
+    }
+  };
+
+  window.fbLoadSrsData = async function() {
+    if (!window.__uid || !window.__db) return null;
+    try {
+      const { doc, getDoc } = window.__firestore;
+      const ref  = doc(window.__db, 'users', window.__uid, 'state', 'srsData');
+      const snap = await getDoc(ref);
+      return snap.exists() ? snap.data() : null;
+    } catch(e) {
+      console.warn('Firestore SRS load failed:', e);
+      return null;
+    }
+  };
+
+  window.fbSaveSettings = async function(settings) {
+    if (!window.__uid || !window.__db) return;
+    try {
+      const { doc, setDoc } = window.__firestore;
+      const ref = doc(window.__db, 'users', window.__uid, 'state', 'settings');
+      await setDoc(ref, { ...settings, _savedAt: Date.now() });
+    } catch(e) {
+      console.warn('Firestore settings save failed:', e);
+    }
+  };
+
+  window.fbLoadSettings = async function() {
+    if (!window.__uid || !window.__db) return null;
+    try {
+      const { doc, getDoc } = window.__firestore;
+      const ref  = doc(window.__db, 'users', window.__uid, 'state', 'settings');
+      const snap = await getDoc(ref);
+      return snap.exists() ? snap.data() : null;
+    } catch(e) {
+      console.warn('Firestore settings load failed:', e);
+      return null;
+    }
+  };
 
   window.fbSaveQuizState = async function(saveObj) {
     if (!window.__uid || !window.__db) return;
