@@ -133,6 +133,148 @@
     vertical-align: 2px;
   }
 
+  /* ── DICTIONARY TAB ── */
+  .dict-container { padding: 20px 24px; max-width: 700px; margin: 0 auto; }
+  .dict-toolbar {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap;
+  }
+  .dict-sort-btn {
+    padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border);
+    background: none; color: var(--muted); font-size: 12px; font-family: 'Quicksand', sans-serif;
+    font-weight: 700; letter-spacing: 0.5px; cursor: pointer; transition: all 0.15s;
+  }
+  .dict-sort-btn.active { background: var(--blue-ink); border-color: var(--blue-ink); color: #fff; }
+  .dict-search {
+    flex: 1; min-width: 120px; padding: 6px 12px; border-radius: 20px;
+    border: 1px solid var(--border); background: var(--bg-2); color: var(--fg);
+    font-size: 13px; font-family: 'Noto Sans KR', sans-serif;
+  }
+  .dict-search:focus { outline: none; border-color: var(--blue-ink); }
+  .dict-add-btn {
+    padding: 6px 16px; border-radius: 20px; border: none;
+    background: var(--blue-ink); color: #fff; font-size: 12px;
+    font-family: 'Quicksand', sans-serif; font-weight: 700; letter-spacing: 0.5px;
+    cursor: pointer; transition: opacity 0.15s; white-space: nowrap;
+  }
+  .dict-add-btn:hover { opacity: 0.85; }
+  .dict-section-label {
+    font-family: 'Quicksand', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase; color: var(--muted-2);
+    margin: 20px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border);
+  }
+  .dict-entry {
+    display: flex; align-items: baseline; gap: 10px; padding: 9px 4px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  }
+  .dict-entry:last-child { border-bottom: none; }
+  .dict-kr {
+    font-family: 'Noto Sans KR', sans-serif; font-size: 16px; font-weight: 500;
+    color: var(--fg); min-width: 120px; flex-shrink: 0;
+  }
+  .dict-en { font-size: 13px; color: var(--muted); flex: 1; line-height: 1.4; }
+  .dict-hanja { font-size: 12px; color: var(--muted-2); margin-left: auto; white-space: nowrap; }
+  .dict-custom-tag {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.5px; padding: 2px 7px;
+    border-radius: 10px; background: var(--blue-ink); color: #fff; opacity: 0.7;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .dict-delete-btn {
+    background: none; border: none; color: var(--muted-2); font-size: 14px;
+    cursor: pointer; padding: 0 4px; flex-shrink: 0; opacity: 0.5;
+  }
+  .dict-delete-btn:hover { opacity: 1; color: var(--red-stamp); }
+  .dict-publish-btn {
+    background: none; border: 1px solid var(--border); border-radius: 12px;
+    color: var(--muted-2); font-size: 11px; font-weight: 700; letter-spacing: 0.3px;
+    cursor: pointer; padding: 2px 10px; flex-shrink: 0; opacity: 0.7;
+    font-family: 'Quicksand', sans-serif; transition: all 0.15s;
+  }
+  .dict-publish-btn:hover { opacity: 1; border-color: var(--blue-ink); color: var(--blue-ink); }
+  .community-published-badge {
+    font-size: 11px; color: #3a9e5f; font-weight: 700;
+    flex-shrink: 0; opacity: 0.85; letter-spacing: 0.3px;
+  }
+  .community-entry { flex-wrap: wrap; gap: 6px 10px; }
+  .community-meta {
+    font-size: 11px; color: var(--muted-2); flex-basis: 100%; margin-top: -4px;
+    padding-left: 2px;
+  }
+  .community-actions { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+  .dict-borrow-btn {
+    background: var(--blue-ink); color: #fff; border: none; border-radius: 12px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.3px;
+    cursor: pointer; padding: 3px 11px; flex-shrink: 0;
+    font-family: 'Quicksand', sans-serif; transition: opacity 0.15s;
+  }
+  .dict-borrow-btn:hover:not(:disabled) { opacity: 0.82; }
+  .dict-borrow-btn:disabled { opacity: 0.4; cursor: default; background: var(--muted-2); }
+  .dict-form {
+    background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px;
+  }
+  .dict-form-title {
+    font-family: 'Quicksand', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; color: var(--muted-2); margin-bottom: 12px;
+  }
+  .dict-form-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .dict-form input[type=text] {
+    flex: 1; min-width: 120px; padding: 8px 12px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--fg);
+    font-family: 'Noto Sans KR', sans-serif; font-size: 14px;
+  }
+  .dict-form input[type=text]:focus { outline: none; border-color: var(--blue-ink); }
+  .dict-form-actions { display: flex; gap: 10px; margin-top: 4px; }
+  .dict-form-save {
+    padding: 7px 20px; border-radius: 8px; border: none;
+    background: var(--blue-ink); color: #fff; font-family: 'Quicksand', sans-serif;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .dict-form-cancel {
+    padding: 7px 16px; border-radius: 8px; border: 1px solid var(--border);
+    background: none; color: var(--muted); font-family: 'Quicksand', sans-serif;
+    font-size: 13px; cursor: pointer;
+  }
+  .dict-hanja-row { position: relative; }
+  .dict-hanja-suggestions {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 100;
+    background: var(--bg-2); border: 1px solid var(--border); border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15); max-height: 200px; overflow-y: auto;
+    margin-top: 2px;
+  }
+  .dict-hanja-sug-item {
+    padding: 8px 12px; cursor: pointer; font-size: 13px; color: var(--fg);
+    border-bottom: 1px solid var(--border);
+  }
+  .dict-hanja-sug-item:last-child { border-bottom: none; }
+  .dict-hanja-sug-item:hover { background: var(--bg); }
+  .dict-empty { text-align: center; padding: 40px 0; color: var(--muted-2); font-size: 14px; }
+  /* Community section */
+  .dict-community-toolbar {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;
+  }
+  .dict-entry-meta {
+    font-size: 11px; color: var(--muted-2); white-space: nowrap; flex-shrink: 0;
+  }
+  .dict-borrow-btn {
+    padding: 3px 10px; border-radius: 12px; border: 1px solid var(--blue-ink);
+    background: none; color: var(--blue-ink); font-size: 11px;
+    font-family: 'Quicksand', sans-serif; font-weight: 700; cursor: pointer;
+    flex-shrink: 0; transition: all 0.15s;
+  }
+  .dict-borrow-btn:hover { background: var(--blue-ink); color: #fff; }
+  .dict-borrow-btn:disabled { opacity: 0.4; cursor: default; border-color: var(--muted-2); color: var(--muted-2); }
+  .dict-publish-btn {
+    padding: 3px 10px; border-radius: 12px; border: 1px solid var(--muted-2);
+    background: none; color: var(--muted); font-size: 11px;
+    font-family: 'Quicksand', sans-serif; font-weight: 700; cursor: pointer;
+    flex-shrink: 0; transition: all 0.15s;
+  }
+  .dict-publish-btn:hover { border-color: var(--blue-ink); color: var(--blue-ink); }
+  .dict-publish-btn.published { opacity: 0.4; cursor: default; }
+  .dict-community-loading {
+    text-align: center; padding: 24px 0; color: var(--muted-2); font-size: 13px;
+  }
+
   /* ── TWO-COLUMN LAYOUT ── */
   .content-layout {
     display: flex; align-items: flex-start; gap: 0;
@@ -694,6 +836,7 @@
     <button class="mode-tab"        id="tabPronounce" onclick="switchMode('pronounce')">Pronounce</button>
     <button class="mode-tab"        id="tabReview" onclick="switchMode('review')">Review<span id="reviewDueBadge" class="due-badge" style="display:none"></span></button>
     <button class="mode-tab"        id="tabStories" onclick="switchMode('stories')">Stories</button>
+    <button class="mode-tab"        id="tabDictionary" onclick="switchMode('dictionary')">Dictionary</button>
   </div>
 
   <!-- Two-column layout: chapter strip sidebar on left, content on right -->
@@ -3161,6 +3304,68 @@ const STORIES = {
   }
 };
 
+// ── USER DICTIONARY ───────────────────────────────────────────────────────
+const MY_WORDS_KEY      = 'korean-game-my-words';
+const MY_WORDS_LIST_KEY = 'My Words'; // the list name that appears in the selector
+
+// userDictionary: array of { kr, en, hanja?, hanjaEn?, cat? }
+let userDictionary = [];
+
+function loadUserDictionary() {
+  try {
+    const raw = localStorage.getItem(MY_WORDS_KEY);
+    userDictionary = raw ? JSON.parse(raw) : [];
+  } catch(e) { userDictionary = []; }
+  syncMyWordsToLists();
+}
+
+function saveUserDictionary() {
+  try { localStorage.setItem(MY_WORDS_KEY, JSON.stringify(userDictionary)); } catch(e) {}
+  syncMyWordsToLists();
+  if (window.fbSaveUserDictionary) window.fbSaveUserDictionary(userDictionary);
+}
+
+// Keep LISTS['My Words'] in sync so quiz/study/review machinery picks it up automatically
+function syncMyWordsToLists() {
+  if (userDictionary.length > 0) {
+    LISTS[MY_WORDS_LIST_KEY] = userDictionary.map(w => ({
+      kr: w.kr, en: w.en,
+      hanja: w.hanja || null,
+      hanjaEn: w.hanjaEn || null,
+      cat: w.cat || 'Custom',
+      __list: MY_WORDS_LIST_KEY,
+    }));
+  } else {
+    delete LISTS[MY_WORDS_LIST_KEY];
+  }
+}
+
+function addCustomWord(kr, en, hanja, hanjaEn, cat) {
+  kr = kr.trim(); en = en.trim();
+  if (!kr || !en) return false;
+  // Prevent duplicates by kr
+  if (userDictionary.some(w => w.kr === kr)) return false;
+  userDictionary.push({ kr, en, hanja: hanja||null, hanjaEn: hanjaEn||null, cat: cat||null });
+  saveUserDictionary();
+  return true;
+}
+
+function deleteCustomWord(kr) {
+  userDictionary = userDictionary.filter(w => w.kr !== kr);
+  saveUserDictionary();
+  if (mode === 'dictionary') renderDictionary();
+}
+
+// Sort order for dictionary display
+let dictSortMode      = 'korean';  // 'korean' | 'english'
+let communityWords    = null;      // null = not loaded yet, [] = loaded empty
+let communitySortMode = 'newest';  // 'newest' | 'popular'
+let communityLoading  = false;
+// Set of kr values the current user has already published to community
+let publishedKrSet    = new Set();
+// Set of kr values already in My Words (for borrow button state)
+function getMyWordsKrSet() { return new Set(userDictionary.map(w => w.kr)); }
+
 // ── QUIZ STATE PERSISTENCE ────────────────────────────────────────────────
 const QUIZ_SAVE_KEY = 'korean-game-quiz-save';
 // Bump this any time new lists are added — saves from older versions are discarded automatically
@@ -3300,6 +3505,31 @@ window.addEventListener('firebase-ready', async () => {
   }
   // Push local settings to Firestore so they're always current
   if (window.fbSaveSettings) window.fbSaveSettings({ showHanja, showHanjaEn });
+
+  // ── 4. User dictionary ───────────────────────────────────────────────────
+  if (window.fbLoadUserDictionary) {
+    const remoteWords = await window.fbLoadUserDictionary();
+    if (remoteWords && Array.isArray(remoteWords) && remoteWords.length > 0) {
+      const hasLocal = userDictionary.length > 0;
+      if (!hasLocal) {
+        // Fresh device — restore from Firestore
+        userDictionary = remoteWords;
+        saveUserDictionary();
+        if (mode === 'dictionary') renderDictionary();
+        if (mode === 'study' || mode === 'quiz' || mode === 'pronounce') renderListSelector();
+      } else {
+        // Merge: add any remote words not already in local dict (by kr)
+        const localKrSet = new Set(userDictionary.map(w => w.kr));
+        const toAdd = remoteWords.filter(w => !localKrSet.has(w.kr));
+        if (toAdd.length > 0) {
+          userDictionary.push(...toAdd);
+          saveUserDictionary();
+          if (mode === 'dictionary') renderDictionary();
+          if (mode === 'study' || mode === 'quiz' || mode === 'pronounce') renderListSelector();
+        }
+      }
+    }
+  }
 });
 
 function restoreQuizState(save) {
@@ -3441,6 +3671,7 @@ function renderListSelector() {
 
   const chapters = {};
   Object.keys(LISTS).forEach(name => {
+    if (name === MY_WORDS_LIST_KEY) return; // shown separately
     const spaceIdx = name.lastIndexOf(' ');
     const chapter  = name.slice(0, spaceIdx); // e.g. "1.1", "3.10"
     if (!chapters[chapter]) chapters[chapter] = [];
@@ -3450,8 +3681,16 @@ function renderListSelector() {
   const chapterKeys   = Object.keys(chapters);
   const activeChapter = [...openChapters].find(c => chapters[c]) || null;
 
+  // "My Words" standalone chip at top (only when user has custom words)
+  const myWordsChip = LISTS[MY_WORDS_LIST_KEY]
+    ? '<div class="chapter-row" style="margin-bottom:4px"><button class="list-chip ' +
+      (selectedLists.has(MY_WORDS_LIST_KEY) ? 'selected' : '') +
+      '" style="font-family:\'Quicksand\',sans-serif;font-size:11px;padding:4px 12px;" ' +
+      'onclick="toggleList(\'' + MY_WORDS_LIST_KEY + '\')">★ My Words</button></div>'
+    : '';
+
   // Each chapter gets its own row: [tab] [A] [B] [C] (chips only on active row)
-  container.innerHTML = '<div class="chapter-tab-strip">' +
+  container.innerHTML = '<div class="chapter-tab-strip">' + myWordsChip +
     chapterKeys.map(chapter => {
       const anySelected = chapters[chapter].some(n => selectedLists.has(n));
       const isActive    = chapter === activeChapter;
@@ -3522,17 +3761,19 @@ function switchMode(m) {
   document.getElementById('tabPronounce').classList.toggle('active', m === 'pronounce');
   document.getElementById('tabReview').classList.toggle('active', m === 'review');
   document.getElementById('tabStories').classList.toggle('active', m === 'stories');
+  document.getElementById('tabDictionary').classList.toggle('active', m === 'dictionary');
   document.getElementById('scoreDisplay').textContent = '';
 
-  // Review and Stories hide the sidebar since they operate globally
+  // Review, Stories and Dictionary hide the sidebar since they operate globally
   const sidebar = document.getElementById('sidebar');
-  if (sidebar) sidebar.style.display = (m === 'review' || m === 'stories') ? 'none' : '';
+  if (sidebar) sidebar.style.display = (m === 'review' || m === 'stories' || m === 'dictionary') ? 'none' : '';
 
-  if (m === 'study')    { renderListSelector(); renderStudy(); }
-  else if (m === 'quiz')     { renderListSelector(); startQuiz(); }
-  else if (m === 'pronounce') { renderListSelector(); startPronounce(); }
-  else if (m === 'review')   { startReview(); }
-  else                       { renderStorySelector(); }
+  if (m === 'study')           { renderListSelector(); renderStudy(); }
+  else if (m === 'quiz')       { renderListSelector(); startQuiz(); }
+  else if (m === 'pronounce')  { renderListSelector(); startPronounce(); }
+  else if (m === 'review')     { startReview(); }
+  else if (m === 'dictionary') { renderDictionary(); }
+  else                         { renderStorySelector(); }
 }
 
 // ── STUDY MODE ────────────────────────────────────────────────────────────
@@ -3829,7 +4070,7 @@ function startQuiz() {
 // Quiz UI/scoring machinery. Falls back to a friendly empty state if
 // nothing is due right now.
 async function startReview() {
-  const allPhrases = Object.values(LISTS).flat();
+  const allPhrases = getAllPhrasesIncludingCustom();
   document.getElementById('mainArea').innerHTML = `<div style="text-align:center;padding:60px 0;color:var(--muted-2);font-size:15px;letter-spacing:1px;">Checking what's due…</div>`;
 
   const duePhrases = await getDuePhrases(allPhrases);
@@ -3860,13 +4101,281 @@ async function startReview() {
 async function refreshReviewBadge() {
   const badge = document.getElementById('reviewDueBadge');
   if (!badge) return;
-  const allPhrases = Object.values(LISTS).flat();
+  const allPhrases = getAllPhrasesIncludingCustom();
   const due = await getDuePhrases(allPhrases);
   if (due.length > 0) {
     badge.textContent = due.length;
     badge.style.display = 'inline-flex';
   } else {
     badge.style.display = 'none';
+  }
+}
+
+// Returns all phrases from LISTS (including My Words if populated)
+function getAllPhrasesIncludingCustom() {
+  return Object.values(LISTS).flat();
+}
+
+// ── DICTIONARY MODE ───────────────────────────────────────────────────────
+async function renderDictionary() {
+  const area = document.getElementById('mainArea');
+
+  // Collect auto-populated words: Review-eligible base vocab
+  const eligibleNames = await getEligibleListNames();
+  const autoWords = [];
+  Object.entries(LISTS).forEach(([listName, phrases]) => {
+    if (listName === MY_WORDS_LIST_KEY) return;
+    if (!eligibleNames.has(listName)) return;
+    phrases.forEach(p => autoWords.push({ ...p, __list: listName }));
+  });
+
+  const dictSearchVal = (document.getElementById('dictSearchInput')?.value || '').toLowerCase();
+
+  function matchesSearch(w) {
+    if (!dictSearchVal) return true;
+    return w.kr.includes(dictSearchVal) || w.en.toLowerCase().includes(dictSearchVal);
+  }
+
+  function sortWords(arr) {
+    return [...arr].sort((a, b) =>
+      dictSortMode === 'english' ? a.en.localeCompare(b.en) : a.kr.localeCompare(b.kr, 'ko')
+    );
+  }
+
+  const filteredAuto   = sortWords(autoWords.filter(matchesSearch));
+  const filteredCustom = sortWords(userDictionary.filter(w => matchesSearch(w)));
+  const showForm = window._dictFormOpen || false;
+
+  area.innerHTML = `
+    <div class="dict-container">
+      <div class="dict-toolbar">
+        <button class="dict-sort-btn ${dictSortMode === 'korean' ? 'active' : ''}" onclick="setDictSort('korean')">ㄱㄴㄷ</button>
+        <button class="dict-sort-btn ${dictSortMode === 'english' ? 'active' : ''}" onclick="setDictSort('english')">A–Z</button>
+        <input class="dict-search" id="dictSearchInput" type="text" placeholder="Search…"
+          value="${dictSearchVal.replace(/"/g,'&quot;')}"
+          oninput="renderDictionary()" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <button class="dict-add-btn" onclick="toggleDictForm()">+ Add word</button>
+      </div>
+
+      ${showForm ? `
+        <div class="dict-form" id="dictForm">
+          <div class="dict-form-title">Add a word</div>
+          <div class="dict-form-row">
+            <input type="text" id="dictKrInput" placeholder="Korean (required)" autocorrect="off" autocapitalize="off" spellcheck="false">
+            <input type="text" id="dictEnInput" placeholder="English meaning (required)">
+          </div>
+          <div class="dict-form-row" style="position:relative">
+            <input type="text" id="dictHanjaInput" placeholder="Hanja (optional — type characters directly)" autocorrect="off" autocapitalize="off" spellcheck="false" autocomplete="off">
+            <input type="text" id="dictHanjaEnInput" placeholder="Hanja meaning, e.g. water + person">
+          </div>
+          <div class="dict-form-row">
+            <input type="text" id="dictCatInput" placeholder="Category / tag (optional)">
+          </div>
+          <div class="dict-form-actions">
+            <button class="dict-form-save" onclick="submitDictForm()">Save</button>
+            <button class="dict-form-cancel" onclick="toggleDictForm()">Cancel</button>
+          </div>
+        </div>` : ''}
+
+      ${userDictionary.length === 0 && !dictSearchVal ? `
+        <div class="dict-section-label">My Words</div>
+        <div class="dict-empty">No custom words yet.<br>Tap <strong>+ Add word</strong> to begin.</div>
+      ` : filteredCustom.length > 0 ? `
+        <div class="dict-section-label">My Words (${userDictionary.length})</div>
+        ${filteredCustom.map(w => `
+          <div class="dict-entry">
+            <span class="dict-kr">${w.kr}</span>
+            <span class="dict-en">${w.en}</span>
+            ${w.hanja ? `<span class="dict-hanja">${Array.isArray(w.hanja) ? w.hanja.join('') : w.hanja}${w.hanjaEn ? ' · ' + w.hanjaEn : ''}</span>` : ''}
+            ${w.cat ? `<span class="dict-custom-tag">${w.cat}</span>` : ''}
+            ${publishedKrSet.has(w.kr)
+              ? `<span class="community-published-badge" title="Shared to community">✓ Shared</span>`
+              : `<button class="dict-publish-btn" onclick="publishWord(${JSON.stringify(w.kr)})" title="Share to community">Share</button>`
+            }
+            <button class="dict-delete-btn" onclick="deleteCustomWord(${JSON.stringify(w.kr)})" title="Remove">✕</button>
+          </div>
+        `).join('')}
+      ` : ''}
+
+      ${eligibleNames.size === 0 && !dictSearchVal ? `
+        <div class="dict-section-label">In Your Dictionary</div>
+        <div class="dict-empty">Complete a full quiz round on any list<br>to add its words here automatically.</div>
+      ` : filteredAuto.length > 0 ? `
+        <div class="dict-section-label">In Your Dictionary — ${autoWords.length} words from ${eligibleNames.size} ${eligibleNames.size === 1 ? 'list' : 'lists'}</div>
+        ${filteredAuto.map(w => `
+          <div class="dict-entry">
+            <span class="dict-kr">${w.kr}</span>
+            <span class="dict-en">${w.en}</span>
+            ${w.hanja ? `<span class="dict-hanja">${Array.isArray(w.hanja) ? w.hanja.join('') : w.hanja}${w.hanjaEn ? ' · ' + w.hanjaEn : ''}</span>` : ''}
+          </div>
+        `).join('')}
+      ` : ''}
+
+      <div class="dict-section-label" style="margin-top:2rem;display:flex;align-items:center;gap:.6rem">
+        Community Pool
+        <button class="dict-sort-btn ${communitySortMode==='newest'?'active':''}" style="font-size:.7rem;padding:.2rem .5rem" onclick="setCommunitySortMode('newest')">Newest</button>
+        <button class="dict-sort-btn ${communitySortMode==='popular'?'active':''}" style="font-size:.7rem;padding:.2rem .5rem" onclick="setCommunitySortMode('popular')">Popular</button>
+        ${communityWords === null && !communityLoading ? `<button class="dict-add-btn" style="margin-left:auto;font-size:.75rem;padding:.25rem .7rem" onclick="loadCommunityWords()">Browse</button>` : ''}
+      </div>
+
+      ${communityLoading ? `
+        <div class="dict-empty">Loading community words…</div>
+      ` : communityWords === null ? `
+        <div class="dict-empty" style="font-size:.85rem">Tap <strong>Browse</strong> to see words shared by other learners.</div>
+      ` : communityWords.length === 0 ? `
+        <div class="dict-empty">No community words yet. Be the first to publish!</div>
+      ` : (() => {
+        const myKrSet = getMyWordsKrSet();
+        const uid = window.__uid || null;
+        return communityWords.map(w => {
+          const alreadyMine = myKrSet.has(w.kr);
+          const isMyWord    = uid && !window.__isAnon && w.authorUid === uid;
+          const alreadyPublished = publishedKrSet.has(w.kr);
+          const borrowDisabled  = alreadyMine || isMyWord;
+          const hanjaStr = w.hanja ? (Array.isArray(w.hanja) ? w.hanja.join('') : w.hanja) : '';
+          return `<div class="dict-entry community-entry">
+            <span class="dict-kr">${w.kr}</span>
+            <span class="dict-en">${w.en}</span>
+            ${hanjaStr ? `<span class="dict-hanja">${hanjaStr}${w.hanjaEn ? ' · '+w.hanjaEn : ''}</span>` : ''}
+            ${w.cat ? `<span class="dict-custom-tag">${w.cat}</span>` : ''}
+            <span class="community-meta">by ${w.authorName||'anonymous'} · ${w.borrowCount||0} borrowed</span>
+            <span class="community-actions">
+              ${borrowDisabled
+                ? `<button class="dict-borrow-btn" disabled title="${isMyWord?'Your word':'Already in your list'}">${isMyWord?'Yours':'✓ Added'}</button>`
+                : `<button class="dict-borrow-btn" onclick="borrowWord(${JSON.stringify(w.__id)},${JSON.stringify(w.kr)},${JSON.stringify(w.en)},${JSON.stringify(w.hanja||null)},${JSON.stringify(w.hanjaEn||null)},${JSON.stringify(w.cat||null)})">+ Borrow</button>`
+              }
+              ${!isMyWord && !alreadyPublished && userDictionary.some(d=>d.kr===w.kr)
+                ? '' : ''  /* publish button only for own dict words, handled in My Words section */}
+            </span>
+          </div>`;
+        }).join('');
+      })()}
+
+    </div>`;
+
+  if (dictSearchVal) {
+    const si = document.getElementById('dictSearchInput');
+    if (si) { const len = si.value.length; si.focus(); si.setSelectionRange(len, len); }
+  }
+  if (showForm) setTimeout(() => document.getElementById('dictKrInput')?.focus(), 50);
+}
+
+function toggleDictForm() {
+  window._dictFormOpen = !window._dictFormOpen;
+  renderDictionary();
+}
+
+function setDictSort(sortMode) {
+  dictSortMode = sortMode;
+  renderDictionary();
+}
+
+/* ── Community dictionary ── */
+async function loadCommunityWords() {
+  if (!window.fbFetchCommunityWords) return;
+  communityLoading = true;
+  renderDictionary();
+  try {
+    communityWords = await window.fbFetchCommunityWords(communitySortMode);
+    // Track which kr values the current user has already published
+    if (communityWords && window.__uid && !window.__isAnon) {
+      publishedKrSet = new Set(
+        communityWords
+          .filter(w => w.authorUid === window.__uid)
+          .map(w => w.kr)
+      );
+    }
+  } catch(e) {
+    communityWords = [];
+  }
+  communityLoading = false;
+  renderDictionary();
+}
+
+function setCommunitySortMode(m) {
+  communitySortMode = m;
+  communityWords = null;
+  loadCommunityWords();
+}
+
+async function publishWord(kr) {
+  if (!kr || !window.fbPublishCommunityWord) return;
+  if (window.__isAnon) {
+    alert('Sign in with Google to publish words to the community.');
+    return;
+  }
+  const word = userDictionary.find(w => w.kr === kr);
+  if (!word) return;
+
+  // Check for duplicate in community
+  let existing = null;
+  if (window.fbCheckCommunityDuplicate) {
+    existing = await window.fbCheckCommunityDuplicate(kr);
+  }
+  if (existing) {
+    const go = confirm(`"${kr}" is already in the community pool (by ${existing.authorName || 'someone'}). Publish anyway?`);
+    if (!go) return;
+  }
+
+  const result = await window.fbPublishCommunityWord({
+    kr: word.kr,
+    en: word.en,
+    hanja: word.hanja || null,
+    hanjaEn: word.hanjaEn || null,
+    cat: word.cat || null,
+  });
+
+  if (result && !result.error) {
+    publishedKrSet.add(kr);
+    communityWords = null; // force refresh
+    renderDictionary();
+  } else {
+    alert('Could not publish word. Please try again.');
+  }
+}
+
+async function borrowWord(entryId, kr, en, hanja, hanjaEn, cat) {
+  const mySet = getMyWordsKrSet();
+  if (mySet.has(kr)) {
+    alert(`"${kr}" is already in your word list.`);
+    return;
+  }
+  const hanjaArr = hanja ? (Array.isArray(hanja) ? hanja : [...hanja]) : null;
+  addCustomWord(kr, en, hanjaArr, hanjaEn || null, cat || null);
+  if (window.fbBorrowCommunityWord) {
+    await window.fbBorrowCommunityWord(entryId);
+  }
+  // Update borrow count in local cache
+  if (communityWords) {
+    const entry = communityWords.find(w => w.__id === entryId);
+    if (entry) entry.borrowCount = (entry.borrowCount || 0) + 1;
+  }
+  renderDictionary();
+}
+
+function submitDictForm() {
+  const kr      = (document.getElementById('dictKrInput')?.value || '').trim();
+  const en      = (document.getElementById('dictEnInput')?.value || '').trim();
+  const hanjaRaw = (document.getElementById('dictHanjaInput')?.value || '').trim();
+  const hanjaEn = (document.getElementById('dictHanjaEnInput')?.value || '').trim();
+  const cat     = (document.getElementById('dictCatInput')?.value || '').trim();
+
+  if (!kr || !en) {
+    const inp = document.getElementById(!kr ? 'dictKrInput' : 'dictEnInput');
+    if (inp) { inp.style.borderColor = 'var(--red-stamp)'; inp.focus(); }
+    return;
+  }
+
+  // Hanja: store as array of chars (one per syllable), or null
+  const hanjaArr = hanjaRaw ? [...hanjaRaw] : null;
+  const added = addCustomWord(kr, en, hanjaArr, hanjaEn||null, cat||null);
+  if (added) {
+    window._dictFormOpen = false;
+    renderDictionary();
+    if (mode === 'study' || mode === 'quiz' || mode === 'pronounce') renderListSelector();
+  } else {
+    const inp = document.getElementById('dictKrInput');
+    if (inp) { inp.style.borderColor = 'var(--red-stamp)'; inp.focus(); }
   }
 }
 
@@ -5486,6 +5995,7 @@ document.addEventListener('DOMContentLoaded', () => {
     isDarkMode = true;
   }
   applyTheme();
+  loadUserDictionary(); // populates LISTS['My Words'] before anything else runs
   renderListSelector();
   refreshReviewBadge();
 
@@ -5534,7 +6044,9 @@ document.addEventListener('DOMContentLoaded', () => {
   import { getAuth, signInAnonymously, signInWithPopup, signInWithRedirect,
            linkWithPopup, linkWithRedirect, getRedirectResult,
            GoogleAuthProvider, onAuthStateChanged }                       from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, deleteDoc }                from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDoc, deleteDoc,
+           collection, addDoc, getDocs, updateDoc, increment,
+           query, orderBy, limit, where, serverTimestamp }               from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey:            "AIzaSyD0hdjJlDX4M8ZAKpCDW_EB9tKIYAiaUjY",
@@ -5552,7 +6064,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Expose to the classic script
   window.__db        = db;
-  window.__firestore = { doc, setDoc, getDoc, deleteDoc };
+  window.__firestore = { doc, setDoc, getDoc, deleteDoc,
+                         collection, addDoc, getDocs, updateDoc, increment,
+                         query, orderBy, limit, where, serverTimestamp };
 
   // Sign in anonymously on first load
   signInAnonymously(auth).catch(e => console.warn('Firebase anon auth failed:', e));
@@ -5703,6 +6217,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  window.fbSaveUserDictionary = async function(words) {
+    if (!window.__uid || !window.__db) return;
+    try {
+      const { doc, setDoc } = window.__firestore;
+      const ref = doc(window.__db, 'users', window.__uid, 'dictionary', 'words');
+      await setDoc(ref, { words, _savedAt: Date.now() });
+    } catch(e) { console.warn('Firestore dictionary save failed:', e); }
+  };
+
+  window.fbLoadUserDictionary = async function() {
+    if (!window.__uid || !window.__db) return null;
+    try {
+      const { doc, getDoc } = window.__firestore;
+      const ref  = doc(window.__db, 'users', window.__uid, 'dictionary', 'words');
+      const snap = await getDoc(ref);
+      return snap.exists() ? snap.data().words : null;
+    } catch(e) { console.warn('Firestore dictionary load failed:', e); return null; }
+  };
+
   window.fbSaveQuizState = async function(saveObj) {
     if (!window.__uid || !window.__db) return;
     setSyncStatus('saving');
@@ -5739,6 +6272,72 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch(e) {
       console.warn('Firestore clear failed:', e);
     }
+  };
+
+  // ── Community dictionary ──────────────────────────────────────────────────
+  // Fetch community words, sorted by newest or most-borrowed
+  window.fbFetchCommunityWords = async function(sortBy = 'newest', maxResults = 50) {
+    if (!window.__db) return [];
+    try {
+      const { collection, query, orderBy, limit, getDocs } = window.__firestore;
+      const col  = collection(window.__db, 'community', 'words', 'entries');
+      const field = sortBy === 'popular' ? 'borrowCount' : 'addedAt';
+      const q    = query(col, orderBy(field, 'desc'), limit(maxResults));
+      const snap = await getDocs(q);
+      return snap.docs.map(d => ({ __id: d.id, ...d.data() }));
+    } catch(e) {
+      console.warn('Firestore community fetch failed:', e);
+      return [];
+    }
+  };
+
+  // Check if a word (by kr) already exists in the community pool
+  window.fbCheckCommunityDuplicate = async function(kr) {
+    if (!window.__db) return null;
+    try {
+      const { collection, query, where, getDocs } = window.__firestore;
+      const col = collection(window.__db, 'community', 'words', 'entries');
+      const q   = query(col, where('kr', '==', kr), limit(1));
+      const snap = await getDocs(q);
+      if (snap.empty) return null;
+      const d = snap.docs[0];
+      return { __id: d.id, ...d.data() };
+    } catch(e) { return null; }
+  };
+
+  // Publish a word to the community pool
+  window.fbPublishCommunityWord = async function(word) {
+    if (!window.__uid || !window.__db || window.__isAnon) return { error: 'anon' };
+    try {
+      const { collection, addDoc, serverTimestamp } = window.__firestore;
+      const col  = collection(window.__db, 'community', 'words', 'entries');
+      const user = auth.currentUser;
+      const ref  = await addDoc(col, {
+        kr:          word.kr,
+        en:          word.en,
+        hanja:       word.hanja   || null,
+        hanjaEn:     word.hanjaEn || null,
+        cat:         word.cat     || null,
+        authorUid:   window.__uid,
+        authorName:  user.displayName || user.email || 'Anonymous',
+        addedAt:     serverTimestamp(),
+        borrowCount: 0,
+      });
+      return { id: ref.id };
+    } catch(e) {
+      console.warn('Firestore publish failed:', e);
+      return { error: e.message };
+    }
+  };
+
+  // Borrow a community word (increment its borrowCount)
+  window.fbBorrowCommunityWord = async function(entryId) {
+    if (!window.__db) return;
+    try {
+      const { doc, updateDoc, increment } = window.__firestore;
+      const ref = doc(window.__db, 'community', 'words', 'entries', entryId);
+      await updateDoc(ref, { borrowCount: increment(1) });
+    } catch(e) { console.warn('Firestore borrow increment failed:', e); }
   };
 
   // ── Sync status indicator ─────────────────────────────────────────────────
